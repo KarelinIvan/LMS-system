@@ -39,7 +39,7 @@ class Lesson(models.Model):
         max_length=50, verbose_name="Название урока", help_text="укажите название урока"
     )
     course = models.ForeignKey(
-        Course, on_delete=models.SET_NULL, verbose_name="Курс", blank=True, null=True, related_name='lesson_set'
+        Course, on_delete=models.SET_NULL, verbose_name="Курс", blank=True, null=True, related_name='lessons'
     )
     description = models.TextField(
         verbose_name="Описание урока", help_text="укажите описание урока"
