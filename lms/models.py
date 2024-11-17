@@ -1,5 +1,8 @@
 from django.db import models
 
+from config.settings import AUTH_USER_MODEL
+
+
 # Create your models here.
 
 
@@ -15,6 +18,13 @@ class Course(models.Model):
     description = models.TextField(
         verbose_name="Описание курса", help_text="укажите описание курса"
     )
+    owner = models.ForeignKey(
+        AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Создатель курса",
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = "Курс"
@@ -29,7 +39,7 @@ class Lesson(models.Model):
         max_length=50, verbose_name="Название урока", help_text="укажите название урока"
     )
     course = models.ForeignKey(
-        Course, on_delete=models.SET_NULL, verbose_name="Курс", blank=True, null=True
+        Course, on_delete=models.SET_NULL, verbose_name="Курс", blank=True, null=True, related_name='lesson_set'
     )
     description = models.TextField(
         verbose_name="Описание урока", help_text="укажите описание урока"
@@ -43,6 +53,13 @@ class Lesson(models.Model):
         blank=True,
         null=True,
         help_text="укажите ссылку на видео материал",
+    )
+    owner = models.ForeignKey(
+        AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Создатель урока",
+        null=True,
+        blank=True
     )
 
     class Meta:
