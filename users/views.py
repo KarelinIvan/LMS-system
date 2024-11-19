@@ -19,11 +19,6 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields = ("paid_course", "paid_lesson")
 
 
-class UserListCreateAPIView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
 class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -40,7 +35,7 @@ class PaymentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 
 
 class UserCreateAPIView(CreateAPIView):
-    """Контроллер для регистрация пользователя"""
+    """Контроллер для регистрации пользователя"""
     serializer_class = UserSerializer
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
