@@ -19,11 +19,6 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields = ("paid_course", "paid_lesson")
 
 
-class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
 class PaymentListCreateAPIView(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
