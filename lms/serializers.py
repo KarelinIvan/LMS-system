@@ -2,12 +2,14 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from lms.models import Course, Lesson
+from lms.validators import validate_links
 
 
 class LessonSerializer(ModelSerializer):
     class Meta:
         model = Lesson
         fields = "__all__"
+        validators = [validate_links]
 
 
 class CourseSerializer(ModelSerializer):
