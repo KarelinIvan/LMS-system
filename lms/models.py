@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from config.settings import AUTH_USER_MODEL
@@ -65,3 +66,9 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = "Урок"
         verbose_name_plural = "Уроки"
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="subscriptions")
+    created_at = models.DateTimeField(auto_now_add=True)
