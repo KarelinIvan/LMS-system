@@ -60,3 +60,21 @@ class LessonTestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Lesson.objects.count(), 0)
+
+class CourseTestCase(APITestCase):
+    def setUp(self):
+        """ Создание пользователя, курса, урока и добавление урока в курс """
+
+        self.user = User.objects.create(email="user@example.com")
+        self.client.force_authenticate(user=self.user)
+        self.course = Course.objects.create(title="Test Course")
+        self.lesson = Lesson.objects.create(title='Test Lesson')
+        # self.course.lesson_set.add(self.lesson)
+
+    def test_course_create(self):
+        """ Тестирование добавления курса """
+
+        url = reverse('lms:course-list')
+        data = {"title": "New Course"}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
