@@ -95,14 +95,14 @@ class CourseTestCase(APITestCase):
 
     def test_course_detail(self):
         """ Тестирование на получение деталей курса """
-        url = reverse("lms:course-list", args=[self.course.id])
+        url = reverse("lms:course-list", args=(self.course.pk,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["title"], "Test_course")
 
     def test_course_update(self):
         """ Тестирование на обновление курса """
-        url = reverse("lms:course-list", args=[self.course.id])
+        url = reverse("lms:course-list", args=(self.course.pk,))
         data = {"title": "Updated сourse", "description": "Updated description"}
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -111,7 +111,7 @@ class CourseTestCase(APITestCase):
 
     def test_course_delete(self):
         """ Тестирование на удаление курса """
-        url = reverse("lms:course-list", args=[self.course.id])
+        url = reverse("lms:course-list", args=(self.course.pk,))
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Course.objects.count(), 0)  # Убедитесь, что курс удален
