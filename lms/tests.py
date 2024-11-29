@@ -125,7 +125,7 @@ class SubscriptionViewTest(APITestCase):
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.superuser)
-        self.url = reverse('subscribe')
+        self.url = reverse('lms:subscribe')
 
     def test_add_subscription(self):
         """ Тест добавления подписки """
