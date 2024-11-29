@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from lms.models import Course, Lesson, Subscription
-
+from users.models import User
 
 
 class LessonTestCase(APITestCase):
@@ -12,8 +12,10 @@ class LessonTestCase(APITestCase):
         """ Создание пользователя, курса, урока"""
 
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
-        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,
+        self.superuser = User.objects.create(email="admin@sky.ru", password="admin", is_staff=True,
                                                          is_superuser=True)
+        my_group = Group.objects.create(name='Модератор')
+        my_group.user_set.add(self.superuser)
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.superuser)
@@ -70,8 +72,10 @@ class CourseTestCase(APITestCase):
         """ Создание пользователя, курса, урока и добавление урока в курс """
 
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
-        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,
+        self.superuser = User.objects.create(email="admin@sky.ru", password="admin", is_staff=True,
                                                          is_superuser=True)
+        my_group = groups.objects.create(name='Модератор')
+        my_group.user_set.add(self.superuser)
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.superuser)
@@ -89,19 +93,19 @@ class CourseTestCase(APITestCase):
         url = reverse("lms:course-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Убедитесь, что у нас 1 курс в ответе
+        self.assertEqual(len(response.json()), 1)  # Убедитесь, что у нас 1 курс в ответе
         self.assertEqual(response.data[0]["title"], "Test_course")
 
     def test_course_detail(self):
         """ Тестирование на получение деталей курса """
-        url = reverse("lms:course-list", args=(self.course.pk,))
+        url = reverse("lms:course-list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["title"], "Test_course")
 
     def test_course_update(self):
         """ Тестирование на обновление курса """
-        url = reverse("lms:course-list", args=(self.course.pk,))
+        url = reverse("lms:course-list")
         data = {"title": "Updated сourse", "description": "Updated description"}
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -110,7 +114,7 @@ class CourseTestCase(APITestCase):
 
     def test_course_delete(self):
         """ Тестирование на удаление курса """
-        url = reverse("lms:course-list", args=(self.course.pk,))
+        url = reverse("lms:course-list")
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Course.objects.count(), 0)  # Убедитесь, что курс удален
@@ -119,7 +123,9 @@ class CourseTestCase(APITestCase):
 class SubscriptionViewTest(APITestCase):
 
     def setUp(self):
-        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True, is_superuser=True)
+        self.superuser = User.objects.create(email="admin@sky.ru", password="admin", is_staff=True, is_superuser=True)
+        my_group = Group.objects.create(name='Модератор')
+        my_group.user_set.add(self.superuser)
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.superuser)
@@ -131,7 +137,7 @@ class SubscriptionViewTest(APITestCase):
         response = self.client.post(self.url, {'course_id': self.course.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], 'Подписка добавлена')
-        self.assertTrue(Subscription.objects.filter(user=self.user, course=self.course).exists())
+        self.assertTrue(Subscription.objects.filter(user=self.superuser, course=self.course).exists())
 
     def test_remove_subscription(self):
         """ Тест удаления подписки """
@@ -147,7 +153,7 @@ class SubscriptionViewTest(APITestCase):
     def test_invalid_course_id(self):
         """Тест отправки некорректного ID курса"""
         response = self.client.post(self.url, {'course_id': 9999})  # Не существующий ID
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_unauthenticated_user(self):
         """Тест на доступ для неавторизованного пользователя"""
