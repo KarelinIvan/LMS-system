@@ -107,7 +107,7 @@ class CourseTestCase(APITestCase):
         self.assertEqual(self.course.title, "Updated course")
 
     def test_course_delete(self):
-        """Тест на удаление курса"""
+        """ Тестирование на удаление курса """
         url = reverse("lms:course-list", args=[self.course.id])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
