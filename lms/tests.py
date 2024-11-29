@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -74,7 +74,7 @@ class CourseTestCase(APITestCase):
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
         self.superuser = User.objects.create(email="admin@sky.ru", password="admin", is_staff=True,
                                                          is_superuser=True)
-        my_group = groups.objects.create(name='Модератор')
+        my_group = Group.objects.create(name='Модератор')
         my_group.user_set.add(self.superuser)
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
