@@ -11,7 +11,7 @@ class LessonTestCase(APITestCase):
         """ Создание пользователя, курса, урока"""
 
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
-        self.superuser = get_user_model().objects.create_superuser(email='admin@sky.ru',password='admin')
+        self.superuser = get_user_model().objects.create(email='admin@sky.ru', password='admin', is_staff=True, is_superuser=True)
         self.superuser = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
@@ -68,7 +68,7 @@ class CourseTestCase(APITestCase):
         """ Создание пользователя, курса, урока и добавление урока в курс """
 
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
-        self.superuser = get_user_model().objects.create_superuser(email='admin@sky.ru', password='admin')
+        self.superuser = get_user_model().objects.create(email='admin@sky.ru', password='admin', is_staff=True,is_superuser=True)
         self.superuser = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
