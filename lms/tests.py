@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from lms.models import Course, Lesson
+from lms.models import Course, Lesson, Subscription
 from users.models import User
 
 
@@ -11,7 +11,7 @@ class LessonTestCase(APITestCase):
         """ Создание пользователя, курса, урока"""
 
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
-        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,
+        self.superuser = User.objects.create(email="admin@sky.ru", password="admin", is_staff=True,
                                                          is_superuser=True)
         self.superuser = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test")
@@ -70,7 +70,7 @@ class CourseTestCase(APITestCase):
         """ Создание пользователя, курса, урока и добавление урока в курс """
 
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
-        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,
+        self.superuser = User.objects.create(email="admin@sky.ru", password="admin", is_staff=True,
                                                          is_superuser=True)
         self.superuser = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test")
@@ -120,13 +120,12 @@ class CourseTestCase(APITestCase):
 class SubscriptionViewTest(APITestCase):
 
     def setUp(self):
-        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,
-                                                         is_superuser=True)
+        self.superuser = User.objects.create(email="admin@sky.ru", password="admin", is_staff=True, is_superuser=True)
         self.superuser = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.superuser)
-        self.url = reverse('subscribe/')
+        self.url = reverse('subscribe')
 
     def test_add_subscription(self):
         """ Тест добавления подписки """
