@@ -11,7 +11,8 @@ class LessonTestCase(APITestCase):
         """ Создание пользователя, курса, урока"""
 
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
-        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True, is_superuser=True)
+        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,
+                                                         is_superuser=True)
         self.superuser = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
@@ -63,12 +64,14 @@ class LessonTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Lesson.objects.count(), 0)
 
+
 class CourseTestCase(APITestCase):
     def setUp(self):
         """ Создание пользователя, курса, урока и добавление урока в курс """
 
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
-        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,is_superuser=True)
+        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,
+                                                         is_superuser=True)
         self.superuser = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test")
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
@@ -112,3 +115,45 @@ class CourseTestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Course.objects.count(), 0)  # Убедитесь, что курс удален
+
+
+class SubscriptionViewTest(APITestCase):
+
+    def setUp(self):
+        self.superuser = get_user_model().objects.create(email="admin@sky.ru", password="admin", is_staff=True,
+                                                         is_superuser=True)
+        self.superuser = User.objects.create(email="admin@sky.pro")
+        self.course = Course.objects.create(title="Test_course", description="test")
+        self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
+        self.client.force_authenticate(user=self.superuser)
+        self.url = reverse('subscribe/')
+
+    def test_add_subscription(self):
+        """ Тест добавления подписки """
+
+        response = self.client.post(self.url, {'course_id': self.course.id})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Подписка добавлена')
+        self.assertTrue(Subscription.objects.filter(user=self.user, course=self.course).exists())
+
+    def test_remove_subscription(self):
+        """ Тест удаления подписки """
+        # Сначала добавим подписку
+        Subscription.objects.create(user=self.user, course=self.course)
+
+        # Теперь попробуем удалить ее
+        response = self.client.post(self.url, {'course_id': self.course.id})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['message'], 'Подписка удалена')
+        self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())
+
+    def test_invalid_course_id(self):
+        """Тест отправки некорректного ID курса"""
+        response = self.client.post(self.url, {'course_id': 9999})  # Не существующий ID
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unauthenticated_user(self):
+        """Тест на доступ для неавторизованного пользователя"""
+        self.client.logout()
+        response = self.client.post(self.url, {'course_id': self.course.id})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
