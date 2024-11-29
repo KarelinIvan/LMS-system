@@ -13,8 +13,8 @@ class LessonTestCase(APITestCase):
         # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
         self.superuser = get_user_model().objects.create_superuser(email='admin@sky.ru',password='admin')
         self.user = User.objects.create(email="admin@sky.pro")
-        self.course = Course.objects.create(title="Test Course")
-        self.lesson = Lesson.objects.create(title='Test Lesson')
+        self.course = Course.objects.create(title="Test_course", description="test")
+        self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.user)
 
     def test_lesson_create(self):
@@ -67,16 +67,17 @@ class CourseTestCase(APITestCase):
     def setUp(self):
         """ Создание пользователя, курса, урока и добавление урока в курс """
 
-        self.user = User.objects.create(email="user@example.com")
+        # Создание супер пользователя для проведения тестов на эндопоинтах с ограниченными правами доступа
+        self.superuser = get_user_model().objects.create_superuser(email='admin@sky.ru', password='admin')
+        self.user = User.objects.create(email="admin@sky.pro")
+        self.course = Course.objects.create(title="Test_course", description="test")
+        self.lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.user)
-        self.course = Course.objects.create(title="Test Course")
-        self.lesson = Lesson.objects.create(title='Test Lesson')
-        # self.course.lesson_set.add(self.lesson)
 
     def test_course_create(self):
         """ Тестирование добавления курса """
 
         url = reverse('lms:course-list')
-        data = {"title": "New Course"}
+        data = {"title": "Test_course", "description": "test"}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
