@@ -93,7 +93,7 @@ class SubscriptionView(APIView):
 
     def post(self, request, *args, **kwargs):
         user = self.request.user
-        course_id = request.data.get("course_id")
+        # course_id = request.data.get("course_id") Необходимо получить данные из сериализатора
 
         course_item = get_object_or_404(Course, id=course_id)
         subs_item = Subscription.objects.filter(user=user, course=course_item)

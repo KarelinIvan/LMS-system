@@ -28,3 +28,5 @@ class CourseDetailSerializer(ModelSerializer):
     class Meta:
         model = Course
         fields = ("title", "description", "count_lessons", "owner", "lessons")
+
+    # СОздать сериализатор на подписку
