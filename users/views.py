@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 
 from users.models import User, Payment
 from users.serializers import UserSerializer, PaymentSerializer
-from users.services import create_stripe_price, create_stripe_sessions
+from users.services import create_stripe_price, create_stripe_sessions, convert_rub_to_dollars
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -29,10 +29,11 @@ class PaymentListCreateAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         payment = serializer.save(user=self.request.user)
-        price = create_stripe_price(payment.amount)
+        amount_in_dollars = convert_rub_to_dollars(payment.amount)
+        price = create_stripe_price(amount_in_dollars)
         session_id, payment_link = create_stripe_sessions(price)
-        payment.stripe_session_id = session_id
-        payment.stripe_payment_url = payment_link
+        payment.session_id = session_id
+        payment.payment_url = payment_link
         payment.save()
 
 
