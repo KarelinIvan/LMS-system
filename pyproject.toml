@@ -20,6 +20,7 @@ djangorestframework-simplejwt = "^5.3.1"
 celery = "^5.4.0"
 coverage = "^7.6.8"
 drf-yasg = "^1.21.8"
+stripe = "^11.3.0"
 
 
 [build-system]
