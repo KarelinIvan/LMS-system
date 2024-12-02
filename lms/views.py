@@ -1,14 +1,10 @@
-from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
     RetrieveAPIView,
     UpdateAPIView,
-    DestroyAPIView, get_object_or_404,
-)
+    DestroyAPIView, )
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson, Subscription
@@ -88,28 +84,6 @@ class LessonDestroyAPIView(DestroyAPIView):
     permission_classes = (IsAuthenticated, IsOwner | ~IsModer)
 
 
-class SubscriptionView(APIView):
-    """эндпоинт для установки подписки пользователя и на удаление подписки у пользователя"""
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        user = self.request.user
-
-        # Используем сериализатор для валидации и получения данных
-        serializer = SubscriptionSerializer(data=request.data)
-        if serializer.is_valid():
-            course_id = serializer.validated_data['course_id']
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        course_item = get_object_or_404(Course, id=course_id)
-        subs_item = Subscription.objects.filter(user=user, course=course_item)
-
-        if subs_item.exists():
-            subs_item.delete()
-            message = "Подписка удалена"
-        else:
-            Subscription.objects.create(user=user, course=course_item)
-            message = "Подписка добавлена"
-
-        return Response({"message": message})
+class SubscriptionListAPIView(ListAPIView):
+    serializer_class = SubscriptionSerializer
+    queryset = Subscription.objects.all()

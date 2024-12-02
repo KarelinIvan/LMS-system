@@ -98,7 +98,7 @@ class SubscriptionViewTest(APITestCase):
         """ Тест удаления подписки """
         url = reverse("lms:subscribe")
         data = {"course_id": self.course.pk}
-        response = self.client.post(url, data)
+        response = self.client.delete(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], 'Подписка удалена')
         self.assertFalse(Subscription.objects.filter(user=self.owner, course=self.course).exists())

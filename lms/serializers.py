@@ -33,4 +33,4 @@ class CourseDetailSerializer(ModelSerializer):
 class SubscriptionSerializer(ModelSerializer):
     class Meta:
         model = Subscription
-        fields = ["id", "course", "created_at"]
+        fields = "__all__"
