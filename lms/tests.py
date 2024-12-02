@@ -81,9 +81,8 @@ class SubscriptionViewTest(APITestCase):
         self.owner = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test", owner=self.owner)
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test", owner=self.owner)
-        self.non_owner_lesson = Lesson.objects.create(title="Test_lesson", description="test")
+        self.non_owner_lesson = Lesson.objects.create(title="Non_owner_lesson", description="test")
         self.client.force_authenticate(user=self.owner)
-        self.subscription = Subscription.objects.create(course=self.course, user=self.owner)
 
     def test_subscribe_to_course(self):
         """ Тестирование подписки """
@@ -95,7 +94,8 @@ class SubscriptionViewTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data.get('message'), "Подписка добавлена")
-        self.assertEqual(Subscription.objects.all().count(), 1)
+        self.assertEqual(Subscription.objects.count(), 1)
+        self.assertEqual(Subscription.objects.first().course, self.course)
 
     def test_unsubscribe_from_course(self):
         """ Тестирование отписки """
@@ -110,4 +110,4 @@ class SubscriptionViewTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data.get('message'), "Подписка удалена")
-        self.assertEqual(Subscription.objects.all().count(), 0)
+        self.assertEqual(Subscription.objects.count(), 0)

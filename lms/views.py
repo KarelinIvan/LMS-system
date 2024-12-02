@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
@@ -95,6 +96,9 @@ class SubscriptionView(APIView):
         user = self.request.user
         course_id = request.data.get('course_id')
 
+        if not course_id:
+            return Response({"message": "course_id не передан"}, status=status.HTTP_400_BAD_REQUEST)
+
         course_item = get_object_or_404(Course, id=course_id)
         subs_item = Subscription.objects.filter(user=user, course=course_item)
 
@@ -105,4 +109,4 @@ class SubscriptionView(APIView):
             Subscription.objects.create(user=user, course=course_item)
             message = "Подписка добавлена"
 
-        return Response({"message": message})
+        return Response({"message": message}, status=status.HTTP_200_OK)
