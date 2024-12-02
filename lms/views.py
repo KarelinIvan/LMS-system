@@ -5,6 +5,7 @@ from rest_framework.generics import (
     UpdateAPIView,
     DestroyAPIView, )
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson, Subscription
@@ -84,6 +85,6 @@ class LessonDestroyAPIView(DestroyAPIView):
     permission_classes = (IsAuthenticated, IsOwner | ~IsModer)
 
 
-class SubscriptionListAPIView(ListAPIView):
+class SubscriptionAPIView(APIView):
     serializer_class = SubscriptionSerializer
     queryset = Subscription.objects.all()
