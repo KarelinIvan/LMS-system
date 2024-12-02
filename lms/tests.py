@@ -85,21 +85,29 @@ class SubscriptionViewTest(APITestCase):
         self.client.force_authenticate(user=self.owner)
         self.subscription = Subscription.objects.create(course=self.course, user=self.owner)
 
-    def test_add_subscription(self):
-        """ Тест добавления подписки """
-        url = reverse("lms:subscribe")
-        data = {"course_id": self.course.pk}
+    def test_subscribe_to_course(self):
+        """ Тестирование подписки """
+
+        url = reverse('lms:subscribe')
+        data = {"course_id": self.course.id}
         response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['message'], 'Подписка добавлена')
-        self.assertTrue(Subscription.objects.filter(user=self.owner, course=self.course).exists())
+        data = response.json()
 
-    def test_remove_subscription(self):
-        """ Тест удаления подписки """
-        url = reverse("lms:subscribe")
-        data = {"course_id": self.course.pk}
-        response = self.client.delete(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['message'], 'Подписка удалена')
-        self.assertFalse(Subscription.objects.filter(user=self.owner, course=self.course).exists())
+        self.assertEqual(data.get('message'), "Подписка добавлена")
+        self.assertEqual(Subscription.objects.all().count(), 1)
 
+    def test_unsubscribe_from_course(self):
+        """ Тестирование отписки """
+
+        url = reverse('lms:subscribe')
+        data = {"course_id": self.course.id}
+        # Сначала подписываемся
+        self.client.post(url, data)
+        # Затем отписываемся
+        response = self.client.post(url, data)
+        data = response.json()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data.get('message'), "Подписка удалена")
+        self.assertEqual(Subscription.objects.all().count(), 0)
