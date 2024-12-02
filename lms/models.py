@@ -69,6 +69,12 @@ class Lesson(models.Model):
 
 
 class Subscription(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="subscriptions")
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="subscriptions")
-    created_at = models.DateTimeField(auto_now_add=True)
+    """ Подписка на курс """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
+                             related_name="subscriptions",
+                             null=False)
+    course = models.ForeignKey(Course,
+                               on_delete=models.CASCADE,
+                               related_name="subscriptions")
+    created_at = models.DateTimeField(auto_now_add=True, help_text="дата подписки")

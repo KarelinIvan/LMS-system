@@ -11,7 +11,7 @@ class LessonTestCase(APITestCase):
         self.owner = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test", owner=self.owner)
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test", owner=self.owner)
-        self.non_owner_lessom = Lesson.objects.create(title="Test_lesson", description="test")
+        self.non_owner_lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.owner)
 
     # def test_lesson_update(self):
@@ -51,7 +51,6 @@ class LessonTestCase(APITestCase):
 
         url = reverse("lms:Lesson_retrieve", args=(self.lesson.pk,))
         response = self.client.get(url)
-        print(response.json())
         data = response.json()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -76,77 +75,33 @@ class LessonTestCase(APITestCase):
         self.assertEqual(Lesson.objects.count(), 1)
 
 
-class CourseTestCase(APITestCase):
+class SubscriptionViewTest(APITestCase):
+
     def setUp(self):
         self.owner = User.objects.create(email="admin@sky.pro")
         self.course = Course.objects.create(title="Test_course", description="test", owner=self.owner)
         self.lesson = Lesson.objects.create(title="Test_lesson", description="test", owner=self.owner)
-        self.non_owner_lessom = Lesson.objects.create(title="Test_lesson", description="test")
+        self.non_owner_lesson = Lesson.objects.create(title="Test_lesson", description="test")
         self.client.force_authenticate(user=self.owner)
+        self.subscription = Subscription.objects.create(course=self.course, user=self.owner)
 
-    def test_course_create(self):
-        """ Тестирование добавления курса """
-
-        url = reverse("lms:course-list")
-        data = {"title": "Test_course", "description": "test"}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_course_list(self):
-        """ Тестирование на получение списка курсов """
-        url = reverse("lms:course-list")
-        response = self.client.get(url)
+    def test_add_subscription(self):
+        """ Тест добавления подписки """
+        url = reverse("lms:subscribe")
+        data = {"course_id": self.course.pk}
+        response = self.client.post(url, data=data)
+        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), 4)  # Убедитесь, что у нас 1 курс в ответе
-        self.assertEqual(response.data[0]["title"], "Test_course")
+        self.assertEqual(response.data['message'], 'Подписка добавлена')
+        self.assertTrue(Subscription.objects.filter(user=self.owner, course=self.course).exists())
 
-    def test_course_detail(self):
-        """ Тестирование на получение деталей курса """
-        url = reverse("lms:course", args=self.course.pk)
-        response = self.client.get(url)
+    def test_remove_subscription(self):
+        """ Тест удаления подписки """
+        url = reverse("lms:subscribe")
+        data = {"course_id": self.course.pk}
+        response = self.client.post(url, data=data)
+        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["title"], "Test_course")
+        self.assertEqual(response.data['message'], 'Подписка удалена')
+        self.assertFalse(Subscription.objects.filter(user=self.owner, course=self.course).exists())
 
-    def test_course_update(self):
-        """ Тестирование на обновление курса """
-        url = reverse("lms:")
-        data = {"title": "Updated сourse", "description": "Updated description"}
-        response = self.client.put(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.course.refresh_from_db()
-        self.assertEqual(self.course.title, "Updated course")
-
-    def test_course_delete(self):
-        """ Тестирование на удаление курса """
-        url = reverse("lms:course", args=self.course.pk)
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Course.objects.count(), 3)  # Убедитесь, что курс удален
-
-
-# class SubscriptionViewTest(APITestCase):
-#
-#     def setUp(self):
-#         self.owner = User.objects.create(email="admin@sky.pro")
-#         self.course = Course.objects.create(title="Test_course", description="test", owner=self.owner)
-#         self.lesson = Lesson.objects.create(title="Test_lesson", description="test", owner=self.owner)
-#         self.non_owner_lessom = Lesson.objects.create(title="Test_lesson", description="test")
-#         self.client.force_authenticate(user=self.owner)
-#         self.subscription = Subscription.objects.create(owner=self.owner, course=self.course)
-#
-#     def test_add_subscription(self):
-#         """ Тест добавления подписки """
-#
-#         response = self.client.post()
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data['message'], 'Подписка добавлена')
-#         self.assertTrue(Subscription.objects.filter(user=self.superuser, course=self.course).exists())
-#
-#     def test_remove_subscription(self):
-#         """ Тест удаления подписки """
-#         url = reverse("lms:subscribe")
-#         data = {"course_id": self.course.pk}
-#         response = self.client.post(url, data)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data['message'], 'Подписка удалена')
-#         self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())

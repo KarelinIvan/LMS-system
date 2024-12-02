@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
@@ -12,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson, Subscription
 from lms.paginators import CustomPagination
-from lms.serializers import CourseSerializer, LessonSerializer, CourseDetailSerializer
+from lms.serializers import CourseSerializer, LessonSerializer, CourseDetailSerializer, SubscriptionSerializer
 from users.permissions import IsModer, IsOwner
 
 
@@ -93,7 +94,13 @@ class SubscriptionView(APIView):
 
     def post(self, request, *args, **kwargs):
         user = self.request.user
-        # course_id = request.data.get("course_id") Необходимо получить данные из сериализатора
+
+        # Используем сериализатор для валидации и получения данных
+        serializer = SubscriptionSerializer(data=request.data)
+        if serializer.is_valid():
+            course_id = serializer.validated_data['course_id']
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         course_item = get_object_or_404(Course, id=course_id)
         subs_item = Subscription.objects.filter(user=user, course=course_item)
