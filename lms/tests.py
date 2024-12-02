@@ -88,9 +88,8 @@ class SubscriptionViewTest(APITestCase):
     def test_add_subscription(self):
         """ Тест добавления подписки """
         url = reverse("lms:subscribe")
-        data = {"course_id": self.course.pk, "user_id": self.owner.pk}
+        data = {"course_id": self.course.pk}
         response = self.client.post(url, data)
-        print(response.json)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], 'Подписка добавлена')
         self.assertTrue(Subscription.objects.filter(user=self.owner, course=self.course).exists())
@@ -98,7 +97,7 @@ class SubscriptionViewTest(APITestCase):
     def test_remove_subscription(self):
         """ Тест удаления подписки """
         url = reverse("lms:subscribe")
-        data = {"course_id": self.course.pk, "user_id": self.owner.pk}
+        data = {"course_id": self.course.pk}
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['message'], 'Подписка удалена')
