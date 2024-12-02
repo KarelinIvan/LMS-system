@@ -21,5 +21,5 @@ urlpatterns = [
     path("login/", TokenObtainPairView.as_view(permission_classes=(AllowAny,)), name="login"),
     path("token/refresh/", TokenRefreshView.as_view(permission_classes=(AllowAny,)), name="token_refresh"),
     path("register/", UserCreateAPIView.as_view(), name="register"),
-    path('payment/status/<str:session_id>/', PaymentStatusAPIView.as_view(), name="payment_status"),
+    path("payment/status/<str:session_id>/", PaymentStatusAPIView.as_view(), name="payment_status"),
 ] + router.urls
