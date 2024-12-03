@@ -1,14 +1,12 @@
-import stripe
-from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, viewsets, filters
-from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
+from rest_framework import viewsets, filters
+from rest_framework.filters import OrderingFilter
+from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.models import User, Payment
 from users.serializers import UserSerializer, PaymentSerializer
-from users.services import create_stripe_price, create_stripe_sessions
+from users.services import create_stripe_product, create_stripe_price, create_stripe_session
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -23,37 +21,6 @@ class UserViewSet(viewsets.ModelViewSet):
     ordering_fields = ("paid_course", "paid_lesson")
 
 
-class PaymentListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-
-    def perform_create(self, serializer):
-        payment = serializer.save(user=self.request.user)
-        price = create_stripe_price(payment.amount)
-        session_id, payment_link = create_stripe_sessions(price)
-        payment.stripe_session_id = session_id
-        payment.stripe_payment_url = payment_link
-        payment.save()
-
-
-class PaymentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
-
-
-class PaymentStatusAPIView(APIView):
-    """Эндпоинт для получения статуса платежа по ID сессии Stripe"""
-
-    def get(self, request, session_id):
-        session = stripe.checkout.Session.retrieve(session_id)
-        payment_status = session.get('payment_status', 'unknown')
-
-        return JsonResponse({
-            'session_id': session.id,
-            'payment_status': payment_status
-        })
-
-
 class UserCreateAPIView(CreateAPIView):
     """Контроллер для регистрации пользователя"""
     serializer_class = UserSerializer
@@ -64,3 +31,37 @@ class UserCreateAPIView(CreateAPIView):
         user = serializer.save(is_active=True)
         user.set_password(user.password)
         user.save()
+
+class PaymentListAPIView(ListAPIView):
+    """Эндпоинт просмотра оплаты"""
+
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = (
+        "paid_course",
+        "paid_lesson",
+        "payment_method",
+    )
+    ordering_fields = ("date_payment",)
+
+
+class PaymentCreateAPIView(CreateAPIView):
+    """Эндпоинт создания оплаты"""
+
+    serializer_class = PaymentSerializer
+    queryset = Payment.objects.all()
+    permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        payment = serializer.save()
+        payment.user = self.request.user
+        stripe_product_id = create_stripe_product(payment)
+        payment.amount = payment.payment_sum
+        price = create_stripe_price(
+            stripe_product_id=stripe_product_id, amount=payment.amount
+        )
+        session_id, payment_link = create_stripe_session(price=price)
+        payment.stripe_session_id = session_id
+        payment.stripe_payment_url = payment_link
+        payment.save()
