@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 
 from users.models import User, Payment
 from users.serializers import UserSerializer, PaymentSerializer
-from users.services import create_stripe_price, create_stripe_sessions, convert_rub_to_dollars
+from users.services import create_stripe_price, create_stripe_sessions
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -36,6 +36,11 @@ class PaymentListCreateAPIView(generics.ListCreateAPIView):
         payment.save()
 
 
+class PaymentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+
+
 class PaymentStatusAPIView(APIView):
     """Эндпоинт для получения статуса платежа по ID сессии Stripe"""
 
@@ -47,11 +52,6 @@ class PaymentStatusAPIView(APIView):
             'session_id': session.id,
             'payment_status': payment_status
         })
-
-
-class PaymentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
 
 
 class UserCreateAPIView(CreateAPIView):
