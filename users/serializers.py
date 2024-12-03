@@ -8,6 +8,10 @@ class PaymentSerializer(ModelSerializer):
         model = Payment
         fields = "__all__"
 
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            print(self.Meta.fields)  # Отладка
+
 
 class UserSerializer(ModelSerializer):
     payments = PaymentSerializer(many=True, read_only=True)
