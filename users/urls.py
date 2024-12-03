@@ -16,9 +16,9 @@ router = SimpleRouter()
 router.register("", UserViewSet)
 
 urlpatterns = [
-    path("payment/", PaymentListCreateAPIView.as_view(), name="payment_detail"),
-    path("payment/<int:pk>/", PaymentRetrieveUpdateDestroyAPIView.as_view(), name="payment_detail"),
-    path("payment/status/<str:session_id>/", PaymentStatusAPIView.as_view(), name="payment_status"),
+    path("payment/", PaymentListCreateAPIView.as_view(), name="payment-list-create"),
+    path("payment/<int:pk>/", PaymentRetrieveUpdateDestroyAPIView.as_view(), name="payment-detail"),
+    path("payment/status/<str:session_id>/", PaymentStatusAPIView.as_view(), name="payment-status"),
 
     path("login/", TokenObtainPairView.as_view(permission_classes=(AllowAny,)), name="login"),
     path("token/refresh/", TokenRefreshView.as_view(permission_classes=(AllowAny,)), name="token_refresh"),
