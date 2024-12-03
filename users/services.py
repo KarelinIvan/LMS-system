@@ -1,17 +1,7 @@
 import stripe
 from django.conf import settings
 
-from forex_python.converter import CurrencyRates
-
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
-
-def convert_rub_to_dollars(amount):
-    """ Конвертирует рубли в доллары """
-
-    c = CurrencyRates()
-    rate = c.get_rate("RUB", "USD")
-    return int(amount * rate)
 
 
 def create_stripe_price(amount):

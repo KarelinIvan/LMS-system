@@ -29,8 +29,7 @@ class PaymentListCreateAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         payment = serializer.save(user=self.request.user)
-        amount_in_dollars = convert_rub_to_dollars(payment.amount)
-        price = create_stripe_price(amount_in_dollars)
+        price = create_stripe_price(payment.amount)
         session_id, payment_link = create_stripe_sessions(price)
         payment.stripe_session_id = session_id
         payment.stripe_payment_url = payment_link
