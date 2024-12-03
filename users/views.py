@@ -32,6 +32,7 @@ class UserCreateAPIView(CreateAPIView):
         user.set_password(user.password)
         user.save()
 
+
 class PaymentListAPIView(ListAPIView):
     """Эндпоинт просмотра оплаты"""
 
@@ -57,7 +58,7 @@ class PaymentCreateAPIView(CreateAPIView):
         payment = serializer.save()
         payment.user = self.request.user
         stripe_product_id = create_stripe_product(payment)
-        payment.amount = payment.payment_sum
+        payment.amount = payment.amount
         price = create_stripe_price(
             stripe_product_id=stripe_product_id, amount=payment.amount
         )
