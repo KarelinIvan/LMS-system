@@ -32,8 +32,8 @@ class PaymentListCreateAPIView(generics.ListCreateAPIView):
         amount_in_dollars = convert_rub_to_dollars(payment.amount)
         price = create_stripe_price(amount_in_dollars)
         session_id, payment_link = create_stripe_sessions(price)
-        payment.session_id = session_id
-        payment.payment_url = payment_link
+        payment.stripe_session_id = session_id
+        payment.stripe_payment_url = payment_link
         payment.save()
 
 
