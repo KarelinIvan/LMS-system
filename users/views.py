@@ -17,7 +17,7 @@ class UserViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter,
         filters.SearchFilter,
     ]
-    # filterset_fields = ("payment_date",)
+    filterset_fields = ("payment_date",)
     ordering_fields = ("paid_course", "paid_lesson")
 
 
