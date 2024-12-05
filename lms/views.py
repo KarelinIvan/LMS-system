@@ -15,6 +15,7 @@ from rest_framework.viewsets import ModelViewSet
 from lms.models import Course, Lesson, Subscription
 from lms.paginators import CustomPagination
 from lms.serializers import CourseSerializer, LessonSerializer, CourseDetailSerializer
+from lms.tasks import mail_update_course_info
 from users.permissions import IsModer, IsOwner
 
 
@@ -26,6 +27,11 @@ class CourseViewSet(ModelViewSet):
         if self.action == "retrieve":
             return CourseDetailSerializer
         return CourseSerializer
+
+    def perform_update(self, serializer):
+        updated_course = serializer.save()
+        mail_update_course_info.delay(updated_course)
+        updated_course.save()
 
     def perform_create(self, serializer):
         """
