@@ -78,3 +78,7 @@ class Subscription(models.Model):
                                on_delete=models.CASCADE,
                                related_name="subscriptions")
     created_at = models.DateTimeField(auto_now_add=True, help_text="дата подписки")
+
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
