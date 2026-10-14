@@ -11,10 +11,39 @@
 - Эндопоинт подписки на обновления курсов и уроков
 - Эндопоинт оплаты покупки курсов и уроков через сервис Stripe
 
-Требования
-- Python версии 3.12+
-- Django версии 5.1.3
-- DRF версии 3.12.2
-- Celery версии 5.4.0
-- Stripe версии 11.3.0
-- Redis версии 5.2.0
+## 🛠 Технологии (Стек) 
+Backend: Python 3.12+, Django 5.1+, Django REST Framework 
+Базы данных: PostgreSQL, Redis 
+Инфраструктура: Docker, Docker Compose 
+Асинхронность: Celery 
+Интеграции: Stripe API, Telegram Bot API 
+Инструменты: Pytest (тесты), Flake8 (линтер), Swagger (документация)
+
+Клонируйте репозиторий:
+bash
+git clone https://github.com/KarelinIvan/LMS-system.git
+
+Скопируйте переменные окружения:
+bash cp .env.example .env
+Откройте файл .env и заполните секретные ключи
+
+Запустите проект через Docker (рекомендуется):
+bash docker-compose up --build
+
+# Создать виртуальное окружение
+python -m venv venv 
+source venv/bin/activate # (или venv\Scripts\activate на Windows)
+
+# Установить зависимости 
+pip install -r requirements.txt 
+
+# Применить миграции 
+python manage.py migrate 
+
+# Запустить сервер 
+python manage.py runserver
+
+Проект задокументирован с помощью Swagger. 
+После запуска откройте в браузере: 
+Интерактивная документация: [http://127.0.0.1:8000/docs/](http://127.0.0.1:8000/docs/) 
+ReDoc: [http://127.0.0.1:8000/redoc/](http://127.0.0.1:8000/redoc/)
